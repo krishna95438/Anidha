@@ -1,0 +1,148 @@
+<!-- index.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Weather Telegram Bot</title>
+</head>
+<body>
+
+  <script>
+    // OpenWeatherMap API key and city ID for Patna
+    const apiKey = '4e8fcb0b6af802134fbe131c569da922';
+    const cityId = '1260086'; // Patna, India
+
+    // Telegram Bot token and chat ID
+    const botToken = '6866868262:AAG8KAnP4GqWvWn80KHTERoYysQSgp_97pA';
+    const chatId = '6404872981';
+
+    // Server endpoint to save log data
+    const serverEndpoint = 'http://your-server-address:3000/saveLog';
+
+    // Key for storing the log in local storage
+    const logKey = 'weatherLog';
+
+    // Function to get current weather from OpenWeatherMap
+    async function getCurrentWeather() {
+      try {
+        const response = await fetch(`http://api.openweathermap.org/data/2.5/weather?id=${cityId}&appid=${apiKey}`);
+        const data = await response.json();
+        const weather = data.weather[0].main;
+        return weather;
+      } catch (error) {
+        console.error('Error fetching weather:', error.message);
+        throw error;
+      }
+    }
+
+    // Function to read the last sent weather from the log
+    async function readLastSentWeather() {
+      try {
+        // Read the weather log from local storage
+        const log = localStorage.getItem(logKey);
+        if (log) {
+          const entries = JSON.parse(log);
+          return entries[entries.length - 1].trim();
+        }
+        return '';
+      } catch (error) {
+        console.error('Error reading last weather:', error.message);
+        return '';
+      }
+    }
+
+    // Function to save the current weather to the log
+    async function saveWeatherToLog(weather) {
+      try {
+        // Read the existing log from local storage
+        const log = localStorage.getItem(logKey);
+        const entries = log ? JSON.parse(log) : [];
+
+        // Add the current weather to the log
+        entries.push(weather);
+
+        // Save the updated log back to local storage
+        localStorage.setItem(logKey, JSON.stringify(entries));
+
+        // Save the log to the server
+        await saveLogToServer(entries);
+      } catch (error) {
+        console.error('Error saving weather to log:', error.message);
+      }
+    }
+
+    // Function to send a Telegram message
+    async function sendTelegramMessage(message) {
+      try {
+        // Check if the message is not empty before sending
+        if (message.trim()) {
+          await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              chat_id: chatId,
+              text: message,
+            }),
+          });
+        } else {
+          console.warn('Attempted to send an empty message.');
+        }
+      } catch (error) {
+        console.error('Error sending Telegram message:', error.message);
+      }
+    }
+
+    // Function to save the log to the server
+    async function saveLogToServer(logData) {
+      try {
+        await fetch(serverEndpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            log: logData,
+          }),
+        });
+      } catch (error) {
+        console.error('Error saving log to server:', error.message);
+      }
+    }
+
+    // Main function to check and send weather updates
+    async function checkAndSendWeatherUpdate() {
+      try {
+        const currentWeather = await getCurrentWeather();
+        const lastSentWeather = await readLastSentWeather();
+
+        if (!lastSentWeather) {
+          // No data found in the log, send initial message
+          const initialMessage = `Initial weather data: ${currentWeather}`;
+          await sendTelegramMessage(initialMessage);
+          await saveWeatherToLog(currentWeather);
+        } else if (currentWeather !== lastSentWeather) {
+          // Weather has changed, send message and update log
+          const message = `Weather in Patna has changed to: ${currentWeather}`;
+          await sendTelegramMessage(message);
+          await saveWeatherToLog(currentWeather);
+        } else {
+          console.log('No weather change detected.');
+        }
+      } catch (error) {
+        console.error('Error:', error.message);
+      }
+    }
+
+    // Run the function every hour (you can adjust the interval as needed)
+    setInterval(checkAndSendWeatherUpdate, 3600000); // 1 hour in milliseconds
+
+    // Initial check and update
+    checkAndSendWeatherUpdate();
+  </script>
+
+</body>
+</html>

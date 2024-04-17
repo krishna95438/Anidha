@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8">
+  <title>Happy Birthday Anidha ✨</title>
+  <link rel='stylesheet' href='https://fonts.googleapis.com/css2?family=Short+Stack&amp;family=Homemade+Apple&amp;display=swap'>
+  <link rel="stylesheet" href="./style.css">
+
+</head>
+<body>
+
+<div class="paper heart">
+
+</div>
+
+  
+<div class="paper image">
+  <p> Wishing you an awesome day<br>as amazing as you! 🎉😊 </p>
+   <img src="images/1.png" />
+</div>
+
+<div class="paper image">
+  <p>May all your </BR> wishes come true!🌟</p>
+  <img src="images/2.png" />
+</div>
+
+<div class="paper image">
+  <p>How can be </p>
+   <p> someone so adorable ❤️ </p>
+
+  <img src="images/3.png" />
+</div>
+
+<div class="paper image">
+  <p>A small Gift by </p>
+   <p style="color: red !important;"> KRISHNA 😁 </p>
+
+  <img src="images/krishna.jpeg" />
+</div>
+
+
+<div class="paper">
+<p class="p1">Happy Birthday </p>
+  <p class="p1" style="color: red !important;">Aakansha <span style="color: red !important;">🎈✨🎉</span></p>
+</div>
+
+<div class="paper" id="play">
+<p class="p1">Click then <br> Drag the papers to move!</p>
+</div>
+<!-- partial -->
+  <script  src="./mobile.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Fetch the current page with an AJAX request
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', window.location.href, true);
+
+        // Listen for the load event
+        xhr.onload = function () {
+            // Check if the status code is 200 (OK)
+            if (xhr.status === 200) {
+                // Create an audio element
+                var audio = new Audio('./images/song.mp3');
+
+                // Set the loop attribute to true
+                audio.loop = true;
+
+                // Function to play the audio
+                function playAudio() {
+                    audio.play();
+                }
+
+                // Get the 'play' div element by its id
+                var playButton = document.getElementById('play');
+
+                // Add a click or touch event listener to the 'play' div
+                playButton.addEventListener('click', playAudio);
+                // For touch devices, you might want to use 'touchstart' event
+                // playButton.addEventListener('touchstart', playAudio);
+            }
+        };
+
+        // Send the request
+        xhr.send();
+    });
+</script>
+
+
+
+</body>
+</html>
